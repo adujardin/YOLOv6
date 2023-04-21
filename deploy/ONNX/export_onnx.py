@@ -29,6 +29,7 @@ if __name__ == '__main__':
     parser.add_argument('--inplace', action='store_true', help='set Detect() inplace=True')
     parser.add_argument('--simplify', action='store_true', help='simplify onnx model')
     parser.add_argument('--dynamic-batch', action='store_true', help='export dynamic batch onnx model')
+    parser.add_argument('--dynamic-imgsize', action='store_true', help='export dynamic width and height onnx model')
     parser.add_argument('--end2end', action='store_true', help='export end2end onnx')
     parser.add_argument('--trt-version', type=int, default=8, help='tensorrt version')
     parser.add_argument('--ort', action='store_true', help='export onnx for onnxruntime')
@@ -83,7 +84,22 @@ if __name__ == '__main__':
                 'outputs': {0: 'batch'},
             }
         dynamic_axes.update(output_axes)
-
+        
+    if args.dynamic_imgsize:
+        if args.dynamic_batch:
+            dynamic_axes = {
+                'images' :{
+                    0: 'batch',
+                    2: 'height',
+                    3: 'width'
+                },}
+        else:
+            dynamic_axes = {
+                'images' :{
+                    2: 'height',
+                    3: 'width'
+                },}
+        dynamic_axes.update(output_axes)
 
     if args.end2end:
         from yolov6.models.end2end import End2End
